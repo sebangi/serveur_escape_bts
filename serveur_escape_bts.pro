@@ -16,10 +16,12 @@ OBJECTS_DIR = .obj
 MOC_DIR     = .moc
 
 SOURCES += main.cpp\
-        src/fenetreprincipale.cpp
+        src/fenetreprincipale.cpp \
+        src/enigmebutton.cpp
 
 HEADERS  += \
-    entete/fenetreprincipale.h
+    entete/fenetreprincipale.h \
+    entete/enigmebutton.h
 
 FORMS    += fenetreprincipale.ui
 

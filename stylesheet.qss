@@ -1,3 +1,48 @@
+QWidget#CentralWidget {
+    background: url(:/img/background.jpg) 0 0 100 100 stretch stretch;
+    background-size: cover;
+}
+
+QWidget#SectionPartieEnCours {
+      border-color: black;
+      background-color: rgba(255,234,180,255);;
+      border-style: solid;
+      border-width: 1px;
+      padding: 2px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      margin-left: 5px;
+      margin-right: 5px;
+}
+
+QWidget#SectionProchainePartie {
+      border-color: black;
+      background-color: rgba(201,235,234,255);
+      border-style: solid;
+      border-width: 1px;
+      padding: 2px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      margin-left: 5px;
+      margin-right: 5px;
+}
+
+
+QLabel#TitreSection {
+      font: 16pt;
+      border-color: black;
+}
+
+QLabel#MonLabel {
+      font: 12pt;
+      padding: 2px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      margin-left: 2px;
+      margin-right: 2px;
+}
+
+
 QPlainTextEdit
 {
     font: 10pt "DejaVu Sans Mono";
