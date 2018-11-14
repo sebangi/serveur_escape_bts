@@ -15,8 +15,6 @@ public:
     const Enigme & enigme() const;
 
     bool est_actif() const;
-
-private:
     void activer();
     void desactiver();
 

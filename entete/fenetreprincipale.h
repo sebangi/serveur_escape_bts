@@ -26,12 +26,17 @@ class FenetrePrincipale : public QMainWindow
 
     private slots:
         void on_choix_enigme();
+        void on_nom_enigme_changed();
+        void on_enregistrer_equipe();
+        void on_demarrer_equipe();
 
     private:
         void creer_widgets();
         void init_widgets();
         void mise_a_jour_temps_accorde();
         void mise_a_jour_nb_enigmes();
+        int calcul_nb_enigmes() const;
+        void mise_a_jour_enregistrer();
 
     private:
         Ui::FenetrePrincipale *m_ui;
@@ -59,6 +64,9 @@ class FenetrePrincipale : public QMainWindow
 
         /** \brief Un pointeur sur le layout contenant les énigmes à choisir. */
         QGridLayout * m_zone_prochaines_enigmes_lay;
+
+        QPushButton * m_enregistrer_nouvelle_equipe;
+        QPushButton * m_demarrer_nouvelle_equipe;
 
         /** \brief Un tableau des pointeurs sur les boutons de choix des énigmes. */
         std::vector<EnigmeButton*> m_enigmes_prochaine_equipe;

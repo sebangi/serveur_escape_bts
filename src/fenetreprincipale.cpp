@@ -121,6 +121,7 @@ void FenetrePrincipale::init_widgets()
     m_prochaine_equipe_editText->setFixedHeight(40);
     m_prochaine_equipe_editText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_prochaine_equipe_editText->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    connect(m_prochaine_equipe_editText, SIGNAL (textChanged()),this, SLOT (on_nom_enigme_changed()));
     infos_prochaine_partie_lay->addWidget(m_prochaine_equipe_editText, 20);
 
     QLabel * label_nb_enigmes = new QLabel( "Nombre d'énigmes :" );
@@ -165,8 +166,32 @@ void FenetrePrincipale::init_widgets()
     }
 
     zone_prochaines_enigmes->setLayout(m_zone_prochaines_enigmes_lay);
-
     zone_prochaine_partie_lay->addWidget(zone_prochaines_enigmes,1);
+
+    QWidget * boutons_prochaine_partie = new QWidget(this);
+    QHBoxLayout * boutons_prochaine_partie_lay = new QHBoxLayout();
+    boutons_prochaine_partie_lay->setMargin(10);
+    boutons_prochaine_partie_lay->setSpacing(0);
+
+    m_enregistrer_nouvelle_equipe = new QPushButton( "Enregistrer" );
+    m_enregistrer_nouvelle_equipe->setObjectName("MonBouton");
+    m_enregistrer_nouvelle_equipe->setFixedWidth(200);
+    m_enregistrer_nouvelle_equipe->setFixedHeight(50);
+    m_enregistrer_nouvelle_equipe->setEnabled(false);
+    connect(m_enregistrer_nouvelle_equipe, SIGNAL (released()),this, SLOT (on_enregistrer_equipe()));
+    boutons_prochaine_partie_lay->addWidget(m_enregistrer_nouvelle_equipe, 1);
+
+    m_demarrer_nouvelle_equipe = new QPushButton( "Démarrer" );
+    m_demarrer_nouvelle_equipe->setObjectName("MonBouton");
+    m_demarrer_nouvelle_equipe->setFixedWidth(200);
+    m_demarrer_nouvelle_equipe->setFixedHeight(50);
+    m_demarrer_nouvelle_equipe->setEnabled(false);
+    connect(m_demarrer_nouvelle_equipe, SIGNAL (released()),this, SLOT (on_demarrer_equipe()));
+    boutons_prochaine_partie_lay->addWidget(m_demarrer_nouvelle_equipe, 1);
+
+    boutons_prochaine_partie->setLayout(boutons_prochaine_partie_lay);
+    zone_prochaine_partie_lay->addWidget(boutons_prochaine_partie);
+
     zone_prochaine_partie->setLayout(zone_prochaine_partie_lay);
 
     // CONFIGURATION DU WIDGET CENTRAL
@@ -203,8 +228,13 @@ void FenetrePrincipale::mise_a_jour_temps_accorde()
 
 void FenetrePrincipale::mise_a_jour_nb_enigmes()
 {
+    m_label_nb_enigmes->setText( QString::number( calcul_nb_enigmes() ) );
+}
+
+int FenetrePrincipale::calcul_nb_enigmes() const
+{
     int nb = 0;
-    std::vector<EnigmeButton*>::iterator it;
+    std::vector<EnigmeButton*>::const_iterator it;
 
     for ( it = m_enigmes_prochaine_equipe.begin();
           it != m_enigmes_prochaine_equipe.end();
@@ -214,9 +244,8 @@ void FenetrePrincipale::mise_a_jour_nb_enigmes()
             nb++;
     }
 
-    m_label_nb_enigmes->setText( QString::number( nb ) );
+    return nb;
 }
-
 
 /** --------------------------------------------------------------------------------------
  * \brief Fonction appelée lorsqu'un choix est effectué.
@@ -235,4 +264,47 @@ void FenetrePrincipale::on_choix_enigme()
     clickedButton->inverser();
     mise_a_jour_temps_accorde();
     mise_a_jour_nb_enigmes();
+    mise_a_jour_enregistrer();
+}
+
+void FenetrePrincipale::mise_a_jour_enregistrer()
+{
+    if ( ! m_prochaine_equipe_editText->toPlainText().isEmpty() &&
+         calcul_nb_enigmes() != 0 )
+        m_enregistrer_nouvelle_equipe->setEnabled(true);
+    else
+        m_enregistrer_nouvelle_equipe->setEnabled(false);
+}
+
+void FenetrePrincipale::on_nom_enigme_changed()
+{
+    mise_a_jour_enregistrer();
+}
+
+void FenetrePrincipale::on_enregistrer_equipe()
+{
+    m_enregistrer_nouvelle_equipe->setEnabled(false);
+    m_demarrer_nouvelle_equipe->setEnabled(true);
+    m_prochaine_equipe_editText->setEnabled(false);
+
+    std::vector<EnigmeButton*>::const_iterator it;
+    for ( it = m_enigmes_prochaine_equipe.begin();
+          it != m_enigmes_prochaine_equipe.end();
+          ++it )
+        (*it)->setEnabled(false);
+}
+
+void FenetrePrincipale::on_demarrer_equipe()
+{
+    m_demarrer_nouvelle_equipe->setEnabled(false);
+    m_prochaine_equipe_editText->setText("");
+    m_prochaine_equipe_editText->setEnabled(true);
+    std::vector<EnigmeButton*>::const_iterator it;
+    for ( it = m_enigmes_prochaine_equipe.begin();
+          it != m_enigmes_prochaine_equipe.end();
+          ++it )
+    {
+        (*it)->desactiver();
+        (*it)->setEnabled(true);
+    }
 }
