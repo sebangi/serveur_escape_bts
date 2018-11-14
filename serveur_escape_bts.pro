@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,11 +17,15 @@ MOC_DIR     = .moc
 
 SOURCES += main.cpp\
         src/fenetreprincipale.cpp \
-        src/enigmebutton.cpp
+        src/enigmebutton.cpp \
+        src/bddinterface.cpp \
+        src/enigme.cpp
 
 HEADERS  += \
     entete/fenetreprincipale.h \
-    entete/enigmebutton.h
+    entete/enigmebutton.h \
+    entete/bddinterface.h \
+    entete/enigme.h
 
 FORMS    += fenetreprincipale.ui
 
