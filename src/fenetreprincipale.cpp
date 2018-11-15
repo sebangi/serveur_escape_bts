@@ -105,6 +105,25 @@ void FenetrePrincipale::init_widgets()
     m_enigmes_en_cours_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     zone_partie_en_cours_lay->addWidget(m_enigmes_en_cours_label, 1);
 
+    QWidget * zone_enigmes_en_cours = new QWidget(this);
+    m_zone_enigmes_en_cours_lay = new QGridLayout();
+    m_zone_enigmes_en_cours_lay->setMargin(10);
+    m_zone_enigmes_en_cours_lay->setSpacing(10);
+
+    Enigme::type_enigmes enigmes_en_cours = BddInterface::instance()->get_enigmes();
+    for ( unsigned int i = 0; i != enigmes_en_cours.size(); ++i )
+    {
+        EnigmeLabel * unEnigmeLabel = new EnigmeLabel( enigmes_en_cours[i], this );
+        m_enigmes_en_cours.push_back(unEnigmeLabel);
+        m_zone_enigmes_en_cours_lay->addWidget( unEnigmeLabel, (i) / 5, (i) % 5 );
+    }
+
+    zone_enigmes_en_cours->setLayout(m_zone_prochaines_enigmes_lay);
+    zone_partie_en_cours_lay->addWidget(zone_enigmes_en_cours,1);
+
+
+
+
     zone_partie_en_cours->setLayout(zone_partie_en_cours_lay);
 
     // ZONE PROCHAINE PARTIE

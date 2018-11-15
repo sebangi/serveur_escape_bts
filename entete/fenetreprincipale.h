@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "entete/enigmebutton.h"
+#include "entete/enigmelabel.h"
 #include "entete/BddInterface.h"
 
 namespace Ui {
@@ -79,6 +80,9 @@ class FenetrePrincipale : public QMainWindow
         /** \brief Un pointeur sur le layout contenant les énigmes à choisir. */
         QGridLayout * m_zone_prochaines_enigmes_lay;
 
+        /** \brief Un pointeur sur le layout contenant les énigmes en cours. */
+        QGridLayout * m_zone_enigmes_en_cours_lay;
+
         /** \brief Un pointeur sur le bouton d'enregistrement d'une nouvelle équipe. */
         QPushButton * m_enregistrer_nouvelle_equipe;
 
@@ -87,6 +91,9 @@ class FenetrePrincipale : public QMainWindow
 
         /** \brief Un tableau des pointeurs sur les boutons de choix des énigmes. */
         std::vector<EnigmeButton*> m_enigmes_prochaine_equipe;
+
+        /** \brief Un tableau des pointeurs sur les labels des énigmes en cours. */
+        std::vector<EnigmeLabel*> m_enigmes_en_cours;
 };
 
 #endif // FENETREPRINCIPALE_H
