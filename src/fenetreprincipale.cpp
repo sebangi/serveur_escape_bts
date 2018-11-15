@@ -1,9 +1,21 @@
+/**
+ * \file fenetreprincipale.cpp
+ * \brief Fichier d'implémentation de la classe FenetrePrincipale.
+ * \author Sébastien Angibaud
+ */
+
 #include "entete/fenetreprincipale.h"
-#include "ui_fenetreprincipale.h"
+
 #include "entete/enigme.h"
+#include "entete/utils.h"
+#include "ui_fenetreprincipale.h"
 
 #include <iostream>
 
+/** --------------------------------------------------------------------------------------
+ \brief Constructeur de la classe FenetrePrincipale.
+ \param parent Le pointeur sur le widget parent.
+*/
 FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::FenetrePrincipale)
@@ -14,9 +26,14 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     init_widgets();
 
     resize(QSize(800,400));
+    this->move(100,10);
+
     m_bdd = BddInterface::instance();
 }
 
+/** --------------------------------------------------------------------------------------
+ \brief Destruction de la classe FenetrePrincipale.
+*/
 FenetrePrincipale::~FenetrePrincipale()
 {
     delete m_ui;
@@ -36,8 +53,6 @@ void FenetrePrincipale::creer_widgets()
 */
 void FenetrePrincipale::init_widgets()
 {
-    QStyle* style = QApplication::style();
-
     setWindowTitle("Serveur ESCAPE BTS");
     m_ui->centralWidget->setObjectName("CentralWidget");
 
@@ -121,7 +136,7 @@ void FenetrePrincipale::init_widgets()
     m_prochaine_equipe_editText->setFixedHeight(40);
     m_prochaine_equipe_editText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_prochaine_equipe_editText->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
-    connect(m_prochaine_equipe_editText, SIGNAL (textChanged()),this, SLOT (on_nom_enigme_changed()));
+    connect(m_prochaine_equipe_editText, SIGNAL (textChanged()),this, SLOT (on_nom_equipe_changed()));
     infos_prochaine_partie_lay->addWidget(m_prochaine_equipe_editText, 20);
 
     QLabel * label_nb_enigmes = new QLabel( "Nombre d'énigmes :" );
@@ -156,7 +171,7 @@ void FenetrePrincipale::init_widgets()
     m_zone_prochaines_enigmes_lay->setMargin(10);
     m_zone_prochaines_enigmes_lay->setSpacing(10);
 
-    type_enigmes enigmes = BddInterface::instance()->get_enigmes();
+    Enigme::type_enigmes enigmes = BddInterface::instance()->get_enigmes();
     for ( unsigned int i = 0; i != enigmes.size(); ++i )
     {
         EnigmeButton * unEnigmeButton = new EnigmeButton( enigmes[i], this );
@@ -196,16 +211,19 @@ void FenetrePrincipale::init_widgets()
 
     // CONFIGURATION DU WIDGET CENTRAL
     m_ui->centralLayout->setMargin(0);
-    m_ui->centralLayout->setSpacing(0);
+    m_ui->centralLayout->setSpacing(10);
 
     m_ui->centralLayout->addWidget(zone_partie_en_cours,1);
     m_ui->centralLayout->addWidget(zone_prochaine_partie,1);
 }
 
+/** --------------------------------------------------------------------------------------
+ \brief Met à jour de l'affichage du temps accordé à la prochaine partie.
+*/
 void FenetrePrincipale::mise_a_jour_temps_accorde()
 {
     int temps = 0;
-    std::vector<EnigmeButton*>::iterator it;
+    std::vector<EnigmeButton*>::const_iterator it;
 
     for ( it = m_enigmes_prochaine_equipe.begin();
           it != m_enigmes_prochaine_equipe.end();
@@ -215,22 +233,20 @@ void FenetrePrincipale::mise_a_jour_temps_accorde()
             temps += (*it)->enigme().temps();
     }
 
-    int min = temps / 60;
-    int sec = temps % 60;
-    QString s =
-            QString::number( min/10 ) +
-            QString::number( min%10 ) +
-            ":" +
-            QString::number( sec/10 ) +
-            QString::number( sec%10 );
-    m_label_temps_accorde->setText( s );
+    m_label_temps_accorde->setText( utils::secondeToQSting( temps ) );
 }
 
+/** --------------------------------------------------------------------------------------
+ \brief Mise à jour de l'affichage du nombre d'énigmes à la prochaine partie.
+*/
 void FenetrePrincipale::mise_a_jour_nb_enigmes()
 {
     m_label_nb_enigmes->setText( QString::number( calcul_nb_enigmes() ) );
 }
 
+/** --------------------------------------------------------------------------------------
+ \brief Calcul du nombre d'énigmes à la prochaine partie.
+*/
 int FenetrePrincipale::calcul_nb_enigmes() const
 {
     int nb = 0;
@@ -248,7 +264,7 @@ int FenetrePrincipale::calcul_nb_enigmes() const
 }
 
 /** --------------------------------------------------------------------------------------
- * \brief Fonction appelée lorsqu'un choix est effectué.
+ * \brief Fonction appelée lorsqu'une énigme est sélectionnée ou désélectionné.
  */
 void FenetrePrincipale::on_choix_enigme()
 {
@@ -261,12 +277,18 @@ void FenetrePrincipale::on_choix_enigme()
     if (!clickedButton)
         return;
 
-    clickedButton->inverser();
-    mise_a_jour_temps_accorde();
-    mise_a_jour_nb_enigmes();
-    mise_a_jour_enregistrer();
+    if ( clickedButton->enigme().valide() )
+    {
+        clickedButton->inverser();
+        mise_a_jour_temps_accorde();
+        mise_a_jour_nb_enigmes();
+        mise_a_jour_enregistrer();
+    }
 }
 
+/** --------------------------------------------------------------------------------------
+ * \brief Mise à jour de l'état du bouton "Enregistrer".
+ */
 void FenetrePrincipale::mise_a_jour_enregistrer()
 {
     if ( ! m_prochaine_equipe_editText->toPlainText().isEmpty() &&
@@ -276,11 +298,17 @@ void FenetrePrincipale::mise_a_jour_enregistrer()
         m_enregistrer_nouvelle_equipe->setEnabled(false);
 }
 
-void FenetrePrincipale::on_nom_enigme_changed()
+/** --------------------------------------------------------------------------------------
+ * \brief Fonction appelée lorsque le nom de l'équipe change.
+ */
+void FenetrePrincipale::on_nom_equipe_changed()
 {
     mise_a_jour_enregistrer();
 }
 
+/** --------------------------------------------------------------------------------------
+ * \brief Fonction appelée lorsqu'on enregistre la prochaine équipe.
+ */
 void FenetrePrincipale::on_enregistrer_equipe()
 {
     m_enregistrer_nouvelle_equipe->setEnabled(false);
@@ -294,6 +322,9 @@ void FenetrePrincipale::on_enregistrer_equipe()
         (*it)->setEnabled(false);
 }
 
+/** --------------------------------------------------------------------------------------
+ * \brief Fonction appelée lorsqu'on démarre la partie de la prochaine équipe.
+ */
 void FenetrePrincipale::on_demarrer_equipe()
 {
     m_demarrer_nouvelle_equipe->setEnabled(false);

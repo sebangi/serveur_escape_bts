@@ -19,13 +19,16 @@ SOURCES += main.cpp\
         src/fenetreprincipale.cpp \
         src/enigmebutton.cpp \
         src/bddinterface.cpp \
-        src/enigme.cpp
+        src/enigme.cpp \
+        src/utils.cpp
 
 HEADERS  += \
     entete/fenetreprincipale.h \
     entete/enigmebutton.h \
     entete/bddinterface.h \
-    entete/enigme.h
+    entete/enigme.h \
+    entete/defines.h \
+    entete/utils.h
 
 FORMS    += fenetreprincipale.ui
 

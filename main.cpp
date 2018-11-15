@@ -1,3 +1,9 @@
+/**
+ * \file main.cpp
+ * \brief Fichier d'implémentation du programme principal.
+ * \author Sébastien Angibaud
+ */
+
 #include "entete/fenetreprincipale.h"
 
 #include <QApplication>
