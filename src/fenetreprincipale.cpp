@@ -118,11 +118,8 @@ void FenetrePrincipale::init_widgets()
         m_zone_enigmes_en_cours_lay->addWidget( unEnigmeLabel, (i) / 5, (i) % 5 );
     }
 
-    zone_enigmes_en_cours->setLayout(m_zone_prochaines_enigmes_lay);
+    zone_enigmes_en_cours->setLayout(m_zone_enigmes_en_cours_lay);
     zone_partie_en_cours_lay->addWidget(zone_enigmes_en_cours,1);
-
-
-
 
     zone_partie_en_cours->setLayout(zone_partie_en_cours_lay);
 
