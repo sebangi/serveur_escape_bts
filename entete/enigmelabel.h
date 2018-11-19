@@ -8,6 +8,10 @@
 class EnigmeLabel : public QLabel
 {
 public:
+    /** \brief Un ensemble d'e pointeur sur Enigme'EnigmeButton. */
+    typedef std::vector<EnigmeLabel*> type_ensemble_enigme_label;
+
+public:
     EnigmeLabel( const Enigme & enigme, QWidget *parent = 0);
     ~EnigmeLabel();
 

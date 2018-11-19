@@ -68,6 +68,20 @@ QPushButton#EnigmeButtonSelectionner {
     background-color: greenyellow;
 }
 
+QLabel#LabelEnigmeEnCoursReussi
+{
+    width: 75px;
+    height: 75px;
+    background-color: greenyellow;
+}
+
+QLabel#LabelEnigmeEnCoursNonReussi
+{
+    width: 75px;
+    height: 75px;
+    background-color: orangered;
+}
+
 QLabel#Chronometre {
     color: black;
     font: 24px;

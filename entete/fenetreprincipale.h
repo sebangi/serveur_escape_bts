@@ -16,7 +16,7 @@
 
 #include "entete/enigmebutton.h"
 #include "entete/enigmelabel.h"
-#include "entete/BddInterface.h"
+#include "entete/bddinterface.h"
 
 namespace Ui {
     class FenetrePrincipale;
@@ -48,6 +48,8 @@ class FenetrePrincipale : public QMainWindow
         void mise_a_jour_nb_enigmes();
         int calcul_nb_enigmes() const;
         void mise_a_jour_enregistrer();
+        void commencer_partie();
+        void enregistrer_prochaine_partie();
 
     private:
         /** \brief Un pointeur sur la Fenetre centrale. */
@@ -64,9 +66,6 @@ class FenetrePrincipale : public QMainWindow
 
         /** \brief Un pointeur sur le label du temps total. */
         QLabel * m_temps_total_label ;
-
-        /** \brief Un pointeur sur le label du décompte des énigmes de la partie en cours. */
-        QLabel * m_enigmes_en_cours_label;
 
         /** \brief Un pointeur sur le label de l'équipe en cours. */
         QTextEdit * m_prochaine_equipe_editText;
@@ -90,10 +89,10 @@ class FenetrePrincipale : public QMainWindow
         QPushButton * m_demarrer_nouvelle_equipe;
 
         /** \brief Un tableau des pointeurs sur les boutons de choix des énigmes. */
-        std::vector<EnigmeButton*> m_enigmes_prochaine_equipe;
+        EnigmeButton::type_ensemble_enigme_bouton m_enigmes_prochaine_equipe;
 
         /** \brief Un tableau des pointeurs sur les labels des énigmes en cours. */
-        std::vector<EnigmeLabel*> m_enigmes_en_cours;
+        EnigmeLabel::type_ensemble_enigme_label m_enigmes_en_cours;
 };
 
 #endif // FENETREPRINCIPALE_H

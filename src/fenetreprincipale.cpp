@@ -82,7 +82,7 @@ void FenetrePrincipale::init_widgets()
 
     m_chronometre_label = new QLabel( "00:00" );
     m_chronometre_label->setObjectName("Chronometre");
-    m_chronometre_label->setFixedHeight(80);
+    m_chronometre_label->setFixedHeight(60);
     m_chronometre_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     zone_equipe_en_cours_lay->addWidget( m_chronometre_label);
 
@@ -99,12 +99,6 @@ void FenetrePrincipale::init_widgets()
     zone_temps->setLayout(zone_equipe_en_cours_lay);
     zone_partie_en_cours_lay->addWidget(zone_temps, 1);
 
-    m_enigmes_en_cours_label = new QLabel( "Énigmes : 0 / 0" );
-    m_enigmes_en_cours_label->setObjectName("MonLabel");
-    m_enigmes_en_cours_label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_enigmes_en_cours_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
-    zone_partie_en_cours_lay->addWidget(m_enigmes_en_cours_label, 1);
-
     QWidget * zone_enigmes_en_cours = new QWidget(this);
     m_zone_enigmes_en_cours_lay = new QGridLayout();
     m_zone_enigmes_en_cours_lay->setMargin(10);
@@ -115,6 +109,10 @@ void FenetrePrincipale::init_widgets()
     {
         EnigmeLabel * unEnigmeLabel = new EnigmeLabel( enigmes_en_cours[i], this );
         m_enigmes_en_cours.push_back(unEnigmeLabel);
+        unEnigmeLabel->setFixedHeight(50);
+        unEnigmeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        unEnigmeLabel->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+        unEnigmeLabel->setObjectName("LabelEnigmeEnCoursNonReussi");
         m_zone_enigmes_en_cours_lay->addWidget( unEnigmeLabel, (i) / 5, (i) % 5 );
     }
 
@@ -130,7 +128,7 @@ void FenetrePrincipale::init_widgets()
     zone_prochaine_partie_lay->setMargin(10);
     zone_prochaine_partie_lay->setSpacing(10);
 
-    QLabel * prochaine_partie_label = new QLabel( "PROCHAINE ÉQUIPE" );
+    QLabel * prochaine_partie_label = new QLabel( "PROCHAINE PARTIE" );
     prochaine_partie_label->setObjectName("TitreSection");
     prochaine_partie_label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     prochaine_partie_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
@@ -149,6 +147,7 @@ void FenetrePrincipale::init_widgets()
 
     m_prochaine_equipe_editText = new QTextEdit();
     m_prochaine_equipe_editText->setObjectName("EnigmeTextEdit");
+    m_prochaine_equipe_editText->setText("");
     m_prochaine_equipe_editText->setFixedHeight(40);
     m_prochaine_equipe_editText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_prochaine_equipe_editText->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
@@ -336,6 +335,8 @@ void FenetrePrincipale::on_enregistrer_equipe()
           it != m_enigmes_prochaine_equipe.end();
           ++it )
         (*it)->setEnabled(false);
+
+    enregistrer_prochaine_partie();
 }
 
 /** --------------------------------------------------------------------------------------
@@ -354,4 +355,26 @@ void FenetrePrincipale::on_demarrer_equipe()
         (*it)->desactiver();
         (*it)->setEnabled(true);
     }
+
+    commencer_partie();
+}
+
+/** --------------------------------------------------------------------------------------
+ * \brief Commence la partie.
+ */
+void FenetrePrincipale::commencer_partie()
+{
+
+}
+
+/** --------------------------------------------------------------------------------------
+ * \brief Enregistre la prochaine partie.
+ */
+void FenetrePrincipale::enregistrer_prochaine_partie()
+{
+   m_bdd->instance()->creer_partie
+            ( m_prochaine_equipe_editText->toPlainText(),
+              m_enigmes_prochaine_equipe );
+
+
 }

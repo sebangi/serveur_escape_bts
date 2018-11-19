@@ -7,8 +7,9 @@
  */
 
 #include <QSqlDatabase>
-#include "entete/enigme.h"
 
+#include "entete/enigme.h"
+#include "entete/enigmebutton.h"
 /**
  * \class BddInterface
  * \brief Classe permettant d'interagir avec la base de données.
@@ -27,6 +28,9 @@ public:
 
     bool connexionEtablie() const;
     Enigme::type_enigmes get_enigmes() const;
+    int get_id_derniere_equipe() const;
+    void creer_partie( QString nom_equipe,
+                       const EnigmeButton::type_ensemble_enigme_bouton & enigmes );
 
 private:
     void connexion_bdd();
