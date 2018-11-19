@@ -1,6 +1,5 @@
 QWidget#CentralWidget {
-    background: url(:/img/background.jpg) 0 0 100 100 stretch stretch;
-    background-size: cover;
+    background: "img/background.jpg";
 }
 
 QWidget#SectionPartieEnCours {
@@ -80,6 +79,13 @@ QLabel#LabelEnigmeEnCoursNonReussi
     width: 75px;
     height: 75px;
     background-color: orangered;
+}
+
+QLabel#LabelEnigmeEnCoursNonSelectionne
+{
+    width: 75px;
+    height: 75px;
+    background-color: slategray;
 }
 
 QLabel#Chronometre {

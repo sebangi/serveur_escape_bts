@@ -11,11 +11,13 @@
 #include <QLabel>
 #include <QLCDNumber>
 #include <QTextEdit>
+#include <QTimer>
 
 #include <vector>
 
 #include "entete/enigmebutton.h"
 #include "entete/enigmelabel.h"
+#include "entete/ensembleenigmesboutons.h"
 #include "entete/bddinterface.h"
 
 namespace Ui {
@@ -40,16 +42,21 @@ class FenetrePrincipale : public QMainWindow
         void on_nom_equipe_changed();
         void on_enregistrer_equipe();
         void on_demarrer_equipe();
+        void onFinTimer();
 
     private:
         void creer_widgets();
         void init_widgets();
         void mise_a_jour_temps_accorde();
+        void mise_a_jour_temps_en_cours();
         void mise_a_jour_nb_enigmes();
-        int calcul_nb_enigmes() const;
         void mise_a_jour_enregistrer();
+        void charger_partie_en_cours();
         void commencer_partie();
+        void mise_a_jour_enigme_en_cours();
         void enregistrer_prochaine_partie();
+        void terminer_partie();
+        void calculer_score();
 
     private:
         /** \brief Un pointeur sur la Fenetre centrale. */
@@ -88,11 +95,26 @@ class FenetrePrincipale : public QMainWindow
         /** \brief Un pointeur sur le bouton de démarrage d'une nouvelle partie. */
         QPushButton * m_demarrer_nouvelle_equipe;
 
-        /** \brief Un tableau des pointeurs sur les boutons de choix des énigmes. */
-        EnigmeButton::type_ensemble_enigme_bouton m_enigmes_prochaine_equipe;
+        /** \brief L'ensemble des boutons de choix des énigmes. */
+        EnsembleEnigmesBoutons m_enigmes_prochaine_equipe;
 
         /** \brief Un tableau des pointeurs sur les labels des énigmes en cours. */
         EnigmeLabel::type_ensemble_enigme_label m_enigmes_en_cours;
+
+        /** \brief Identifiant de l'équipe en cours. */
+        int m_id_equipe_en_cours;
+
+        /** \brief Temps en seconde depuis le commencement de la partie. */
+        int m_temps_en_cours;
+
+        /** \brief Temps accordée à la partie. */
+        int m_temps_accorde;
+
+        /** \brief Indique si la partie courante est terminée. */
+        bool m_partie_courante_terminee;
+
+        /** \brief Le timer pour le chronomètre. */
+        QTimer *m_timer;
 };
 
 #endif // FENETREPRINCIPALE_H

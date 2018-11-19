@@ -90,6 +90,82 @@ Enigme::type_enigmes BddInterface::get_enigmes() const
     return enigmes;
 }
 
+QString BddInterface::get_nom_equipe(int id_equipe) const
+{
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+        query.prepare( "SELECT nom FROM equipe "
+                       "WHERE id = :id_equipe");
+        query.bindValue(":id_equipe", id_equipe);
+
+        if(query.exec())
+            while(query.next())
+            {
+                return query.value(0).toString();
+            }
+    }
+
+    return "non renseignée";
+}
+
+int BddInterface::get_temps_accorde(int id_equipe) const
+{
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+        query.prepare( "SELECT temps_accorde FROM equipe "
+                       "WHERE id = :id_equipe");
+        query.bindValue(":id_equipe", id_equipe);
+
+        if(query.exec())
+            while(query.next())
+            {
+                return query.value(0).toInt();
+            }
+    }
+
+    return 0;
+}
+
+int BddInterface::get_temps_passe(int id_equipe) const
+{
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+        query.prepare( "SELECT CURRENT_TIMESTAMP - heure_depart FROM equipe "
+                       "WHERE id = :id_equipe");
+        query.bindValue(":id_equipe", id_equipe);
+
+        if(query.exec())
+            while(query.next())
+            {
+                return query.value(0).toInt();
+            }
+    }
+
+    return 0;
+}
+
+bool BddInterface::est_terminee(int id_equipe) const
+{
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+        query.prepare( "SELECT est_termine FROM equipe "
+                       "WHERE id = :id_equipe");
+        query.bindValue(":id_equipe", id_equipe);
+
+        if(query.exec())
+            while(query.next())
+            {
+                return query.value(0).toBool();
+            }
+    }
+
+    return true;
+}
+
 int BddInterface::get_id_derniere_equipe() const
 {
     if( connexionEtablie() )
@@ -105,22 +181,26 @@ int BddInterface::get_id_derniere_equipe() const
 
 void BddInterface::creer_partie
  ( QString nom_equipe,
-   const EnigmeButton::type_ensemble_enigme_bouton & enigmes)
+   const EnsembleEnigmesBoutons & enigmes )
 {
     if( connexionEtablie() )
     {
         QSqlQuery query;
-        query.prepare( "INSERT INTO equipe (nom) "
-                       "VALUES (:nom)");
+        query.prepare( "INSERT INTO equipe (nom, nb_enigmes, temps_accorde) "
+                       "VALUES (:nom, :nb_enigmes, :temps_accorde)");
         query.bindValue(":nom", nom_equipe);
-        query.exec();
-    }
+        query.bindValue(":nb_enigmes", enigmes.get_nb_enigmes_selectionnees());
+        query.bindValue(":temps_accorde", enigmes.get_temps_accorde());
+
+        bool ok = query.exec();
+        std::cout << "query :" <<  ok << std::endl;
+     }
 
     int id_equipe = get_id_derniere_equipe();
     std::cout << "id=" << id_equipe << std::endl;
     if ( id_equipe != C_MAUVAIS_ID )
     {
-        for ( EnigmeButton::enigme_bouton_const_iterator it = enigmes.begin();
+        for ( EnsembleEnigmesBoutons::const_iterator it = enigmes.begin();
               it != enigmes.end(); ++it )
             if ( (*it)->est_actif() )
             {
@@ -130,16 +210,44 @@ void BddInterface::creer_partie
                 query.bindValue(":id_enigme", (*it)->enigme().id() );
                 query.bindValue(":id_equipe", id_equipe);
 
-                std::cout << "INSERT " << (*it)->enigme().id()  << " - " << id_equipe << std::endl;
-                bool ok = query.exec();
-
-                if ( ok )
-                    std::cout << "insert réussi" << std::endl;
-                else
-                    std::cout << "insert echec" << std::endl;
-
+                query.exec();
             }
     }
+}
+
+void BddInterface::demarrer_partie(int id_equipe)
+{
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+
+        query.prepare( "UPDATE equipe SET heure_depart=CURRENT_TIMESTAMP "
+                       "WHERE id = :id_equipe");
+        query.bindValue(":id_equipe", id_equipe);
+
+        query.exec();
+    }
+}
+
+std::set<int> BddInterface::get_enigmes_selectionnees(int id_equipe)
+{
+    std::set<int> resultat;
+
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+        query.prepare( "SELECT id_enigme FROM enigme_equipe "
+                       "WHERE id_equipe = :id_equipe");
+        query.bindValue(":id_equipe", id_equipe);
+
+        if(query.exec())
+            while(query.next())
+            {
+                resultat.insert( query.value(0).toInt() );
+            }
+    }
+
+    return resultat;
 }
 
 void BddInterface::connexion_bdd()

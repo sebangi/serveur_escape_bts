@@ -6,11 +6,13 @@
 
 #include "entete/fenetreprincipale.h"
 
+#include "entete/defines.h"
 #include "entete/enigme.h"
 #include "entete/utils.h"
 #include "ui_fenetreprincipale.h"
 
 #include <iostream>
+#include <set>
 
 /** --------------------------------------------------------------------------------------
  \brief Constructeur de la classe FenetrePrincipale.
@@ -18,7 +20,8 @@
 */
 FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     QMainWindow(parent),
-    m_ui(new Ui::FenetrePrincipale)
+    m_ui(new Ui::FenetrePrincipale),
+    m_id_equipe_en_cours(0), m_temps_en_cours(0), m_temps_accorde(0), m_partie_courante_terminee(true)
 {
     m_ui->setupUi(this);
 
@@ -29,6 +32,7 @@ FenetrePrincipale::FenetrePrincipale(QWidget *parent) :
     this->move(100,10);
 
     m_bdd = BddInterface::instance();
+    charger_partie_en_cours();
 }
 
 /** --------------------------------------------------------------------------------------
@@ -45,7 +49,10 @@ FenetrePrincipale::~FenetrePrincipale()
 */
 void FenetrePrincipale::creer_widgets()
 {
-
+    m_timer = new QTimer(this);
+    m_timer->setInterval(1000);
+    connect( m_timer, SIGNAL(timeout()), this, SLOT(onFinTimer()));
+    m_timer->start();
 }
 
 /** --------------------------------------------------------------------------------------
@@ -86,7 +93,7 @@ void FenetrePrincipale::init_widgets()
     m_chronometre_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     zone_equipe_en_cours_lay->addWidget( m_chronometre_label);
 
-    QLabel * deux_points_label = new QLabel( "temps passé | temps restant" );
+    QLabel * deux_points_label = new QLabel( "temps passé | temps accordé" );
     deux_points_label->setObjectName("ChronometreSeparation");
     deux_points_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     zone_equipe_en_cours_lay->addWidget( deux_points_label);
@@ -112,8 +119,8 @@ void FenetrePrincipale::init_widgets()
         unEnigmeLabel->setFixedHeight(50);
         unEnigmeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         unEnigmeLabel->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
-        unEnigmeLabel->setObjectName("LabelEnigmeEnCoursNonReussi");
-        m_zone_enigmes_en_cours_lay->addWidget( unEnigmeLabel, (i) / 5, (i) % 5 );
+        unEnigmeLabel->setObjectName("LabelEnigmeEnCoursNonSelectionne");
+        m_zone_enigmes_en_cours_lay->addWidget( unEnigmeLabel, (i) / 4, (i) % 4 );
     }
 
     zone_enigmes_en_cours->setLayout(m_zone_enigmes_en_cours_lay);
@@ -192,7 +199,7 @@ void FenetrePrincipale::init_widgets()
         EnigmeButton * unEnigmeButton = new EnigmeButton( enigmes[i], this );
         m_enigmes_prochaine_equipe.push_back(unEnigmeButton);
         connect(unEnigmeButton, SIGNAL (released()),this, SLOT (on_choix_enigme()));
-        m_zone_prochaines_enigmes_lay->addWidget( unEnigmeButton, (i) / 5, (i) % 5 );
+        m_zone_prochaines_enigmes_lay->addWidget( unEnigmeButton, (i) / 4, (i) % 4 );
     }
 
     zone_prochaines_enigmes->setLayout(m_zone_prochaines_enigmes_lay);
@@ -237,18 +244,18 @@ void FenetrePrincipale::init_widgets()
 */
 void FenetrePrincipale::mise_a_jour_temps_accorde()
 {
-    int temps = 0;
-    std::vector<EnigmeButton*>::const_iterator it;
+    m_temps_accorde = m_enigmes_prochaine_equipe.get_temps_accorde();
+    m_label_temps_accorde->setText( utils::secondeToQSting( m_temps_accorde ) );
+}
 
-    for ( it = m_enigmes_prochaine_equipe.begin();
-          it != m_enigmes_prochaine_equipe.end();
-          ++it )
-    {
-        if ( (*it)->est_actif() )
-            temps += (*it)->enigme().temps();
-    }
 
-    m_label_temps_accorde->setText( utils::secondeToQSting( temps ) );
+/** --------------------------------------------------------------------------------------
+ \brief Met à jour de l'affichage du temps en cours.
+*/
+void FenetrePrincipale::mise_a_jour_temps_en_cours()
+{
+    m_chronometre_label->setText
+            ( utils::secondeToQSting( m_temps_en_cours ) );
 }
 
 /** --------------------------------------------------------------------------------------
@@ -256,26 +263,8 @@ void FenetrePrincipale::mise_a_jour_temps_accorde()
 */
 void FenetrePrincipale::mise_a_jour_nb_enigmes()
 {
-    m_label_nb_enigmes->setText( QString::number( calcul_nb_enigmes() ) );
-}
-
-/** --------------------------------------------------------------------------------------
- \brief Calcul du nombre d'énigmes à la prochaine partie.
-*/
-int FenetrePrincipale::calcul_nb_enigmes() const
-{
-    int nb = 0;
-    std::vector<EnigmeButton*>::const_iterator it;
-
-    for ( it = m_enigmes_prochaine_equipe.begin();
-          it != m_enigmes_prochaine_equipe.end();
-          ++it )
-    {
-        if ( (*it)->est_actif() )
-            nb++;
-    }
-
-    return nb;
+    m_label_nb_enigmes->setText
+            ( QString::number( m_enigmes_prochaine_equipe.get_nb_enigmes_selectionnees() ) );
 }
 
 /** --------------------------------------------------------------------------------------
@@ -307,7 +296,7 @@ void FenetrePrincipale::on_choix_enigme()
 void FenetrePrincipale::mise_a_jour_enregistrer()
 {
     if ( ! m_prochaine_equipe_editText->toPlainText().isEmpty() &&
-         calcul_nb_enigmes() != 0 )
+         m_enigmes_prochaine_equipe.get_nb_enigmes_selectionnees() != 0 )
         m_enregistrer_nouvelle_equipe->setEnabled(true);
     else
         m_enregistrer_nouvelle_equipe->setEnabled(false);
@@ -347,7 +336,8 @@ void FenetrePrincipale::on_demarrer_equipe()
     m_demarrer_nouvelle_equipe->setEnabled(false);
     m_prochaine_equipe_editText->setText("");
     m_prochaine_equipe_editText->setEnabled(true);
-    std::vector<EnigmeButton*>::const_iterator it;
+
+    EnsembleEnigmesBoutons::const_iterator it;
     for ( it = m_enigmes_prochaine_equipe.begin();
           it != m_enigmes_prochaine_equipe.end();
           ++it )
@@ -356,15 +346,97 @@ void FenetrePrincipale::on_demarrer_equipe()
         (*it)->setEnabled(true);
     }
 
+    mise_a_jour_temps_accorde();
+    mise_a_jour_nb_enigmes();
+
+    charger_partie_en_cours();
     commencer_partie();
 }
+
+void FenetrePrincipale::onFinTimer()
+{
+    if ( ! m_partie_courante_terminee )
+    {
+        m_temps_en_cours++;
+        mise_a_jour_temps_en_cours();
+
+        if ( m_temps_en_cours >= m_temps_accorde )
+            terminer_partie();
+    }
+}
+
+/** --------------------------------------------------------------------------------------
+ * \brief Met fin à la partie en cours.
+ */
+void FenetrePrincipale::terminer_partie()
+{
+    m_partie_courante_terminee = true;
+
+    calculer_score();
+}
+
+/** --------------------------------------------------------------------------------------
+ * \brief Calcule le score de la partie.
+ */
+void FenetrePrincipale::calculer_score()
+{
+    // A FAIRE
+
+}
+
+/** --------------------------------------------------------------------------------------
+ * \brief Charge la partie en cours.
+ */
+void FenetrePrincipale::charger_partie_en_cours()
+{
+    m_id_equipe_en_cours = m_bdd->instance()->get_id_derniere_equipe();
+    std::cout << m_id_equipe_en_cours << std::endl;
+    if ( m_id_equipe_en_cours != C_MAUVAIS_ID )
+    {
+        m_equipe_en_cours_label->setText( m_bdd->instance()->get_nom_equipe( m_id_equipe_en_cours ) );
+        m_temps_accorde =  m_bdd->instance()->get_temps_accorde( m_id_equipe_en_cours );
+        int secondes = m_bdd->instance()->get_temps_passe( m_id_equipe_en_cours );
+        m_temps_total_label->setText( utils::secondeToQSting( m_temps_accorde ) );
+        mise_a_jour_enigme_en_cours();
+
+        m_partie_courante_terminee = m_bdd->instance()->est_terminee( m_id_equipe_en_cours );
+        if ( secondes > m_temps_accorde )
+        {
+            secondes = m_temps_accorde;
+            m_partie_courante_terminee = true;
+        }
+        m_temps_en_cours = secondes;
+        m_chronometre_label->setText( utils::secondeToQSting( m_temps_en_cours ) );
+    }
+}
+
 
 /** --------------------------------------------------------------------------------------
  * \brief Commence la partie.
  */
 void FenetrePrincipale::commencer_partie()
 {
+    m_bdd->instance()->demarrer_partie( m_id_equipe_en_cours );
+    m_temps_en_cours = 0;
+    m_partie_courante_terminee = false;
+}
 
+
+/** --------------------------------------------------------------------------------------
+ * \brief Met à jour les énigmes en cours.
+ */
+void FenetrePrincipale::mise_a_jour_enigme_en_cours()
+{
+    std::set<int> selection = m_bdd->instance()->get_enigmes_selectionnees( m_id_equipe_en_cours );
+
+    EnigmeLabel::type_ensemble_enigme_label::const_iterator it;
+    for ( it = m_enigmes_en_cours.begin();
+          it != m_enigmes_en_cours.end();
+          ++it )
+    {
+        (*it)->set_selectionne( selection.find( (*it)->enigme().id() ) != selection.end() );
+        (*it)->set_reussi(false);
+    }
 }
 
 /** --------------------------------------------------------------------------------------
@@ -375,6 +447,4 @@ void FenetrePrincipale::enregistrer_prochaine_partie()
    m_bdd->instance()->creer_partie
             ( m_prochaine_equipe_editText->toPlainText(),
               m_enigmes_prochaine_equipe );
-
-
 }

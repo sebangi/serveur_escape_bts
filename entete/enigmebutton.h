@@ -18,16 +18,6 @@
 class EnigmeButton : public QPushButton
 {
 public:
-    /** \brief Type représentant un ensemble de pointeur sur des EnigmeButton. */
-    typedef std::vector<EnigmeButton*> type_ensemble_enigme_bouton;
-
-    /** \brief Type représentant un itérateur constant sur un ensemble de pointeur sur des EnigmeButton. */
-    typedef type_ensemble_enigme_bouton::const_iterator enigme_bouton_const_iterator;
-
-    /** \brief Type représentant un itérateur sur un ensemble de pointeur sur des EnigmeButton. */
-    typedef type_ensemble_enigme_bouton::iterator enigme_bouton_iterator;
-
-public:
     EnigmeButton( const Enigme & enigme, QWidget *parent = 0);
     ~EnigmeButton();
 

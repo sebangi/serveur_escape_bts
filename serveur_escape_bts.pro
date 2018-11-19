@@ -21,7 +21,8 @@ SOURCES += main.cpp\
         src/bddinterface.cpp \
         src/enigme.cpp \
         src/utils.cpp \
-        src/enigmelabel.cpp
+        src/enigmelabel.cpp \
+        src/ensembleenigmesboutons.cpp
 
 HEADERS  += \
     entete/fenetreprincipale.h \
@@ -30,7 +31,8 @@ HEADERS  += \
     entete/enigme.h \
     entete/defines.h \
     entete/utils.h \
-    entete/enigmelabel.h
+    entete/enigmelabel.h \
+    entete/ensembleenigmesboutons.h
 
 FORMS    += fenetreprincipale.ui
 

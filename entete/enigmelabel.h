@@ -18,7 +18,13 @@ public:
     const Enigme & enigme() const;
 
     bool est_reussi() const;
-    void noter_reussi();
+    void set_reussi( bool valeur );
+
+    bool est_selectionne() const;
+    void set_selectionne( bool valeur );
+
+private:
+    void mise_a_jour_forme();
 
 private:
     /** \brief L'énigme correspondant au bouton. */
@@ -26,6 +32,9 @@ private:
 
     /** \brief Indique si l'énigme est réussi. */
     bool m_reussi;
+
+    /** \brief Indique si l'énigme est selectionne. */
+    bool m_selectionne;
 };
 
 #endif // ENIGMELABEL_H
