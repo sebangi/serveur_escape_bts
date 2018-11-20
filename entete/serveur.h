@@ -7,23 +7,22 @@ class QTcpServer;
 class QTcpSocket;
 class QNetworkSession;
 
-class Server : public QObject{
+class Serveur : public QObject{
     Q_OBJECT
 
 public:
-    Server();
+    Serveur();
 
 private slots:
     void sessionOuverte();
     void connexionClient();
+    void lireTexte();
 
 private:
-    void envoiTexte( const std::string& s);
-
-private:
-    QTcpServer *m_tcp_server; // La socket général
+    QTcpServer *m_tcp_serveur; // La socket général
     QTcpSocket *m_socket_client; // La socket client
     QNetworkSession *m_network_session; // La session de connexion
+    quint16 m_blockSize;
 };
 
 #endif

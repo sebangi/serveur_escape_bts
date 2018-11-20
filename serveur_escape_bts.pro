@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
+QT       += core gui sql network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,7 +22,8 @@ SOURCES += main.cpp\
         src/enigme.cpp \
         src/utils.cpp \
         src/enigmelabel.cpp \
-        src/ensembleenigmesboutons.cpp
+        src/ensembleenigmesboutons.cpp \
+        src/serveur.cpp
 
 HEADERS  += \
     entete/fenetreprincipale.h \
@@ -32,7 +33,8 @@ HEADERS  += \
     entete/defines.h \
     entete/utils.h \
     entete/enigmelabel.h \
-    entete/ensembleenigmesboutons.h
+    entete/ensembleenigmesboutons.h \
+    entete/serveur.h
 
 FORMS    += fenetreprincipale.ui
 

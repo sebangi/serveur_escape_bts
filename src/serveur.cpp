@@ -1,4 +1,4 @@
-#include "server.h"
+#include "entete/serveur.h"
 
 #include <QtNetwork>
 #include <stdlib.h>
@@ -6,8 +6,8 @@
 
 //###############################################################################################################
 // Constructeur
-Server::Server()
-:   m_tcp_server(0), m_network_session(0)
+Serveur::Serveur()
+:   m_tcp_serveur(0), m_network_session(0), m_blockSize(0)
 {
     QNetworkConfigurationManager manager;
     QNetworkConfiguration config = manager.defaultConfiguration();
@@ -20,50 +20,63 @@ Server::Server()
     m_network_session->open();
 
     // La méthode connexionClient sera appelée sur le signal newConnection
-    connect(m_tcp_server, SIGNAL(newConnection()), this, SLOT(connexionClient()));
+    connect(m_tcp_serveur, SIGNAL(newConnection()), this, SLOT(connexionClient()));
 }
 
 //###############################################################################################################
 // Méthode appelée lors de l'ouverture de session
-void Server::sessionOuverte()
+void Serveur::sessionOuverte()
 {
-    m_tcp_server = new QTcpServer(this); // instanciation
+    m_tcp_serveur = new QTcpServer(this); // instanciation
 
-    if (!m_tcp_server->listen(QHostAddress::Any, 53000)) // on écoute sur le port 53000
+    if (!m_tcp_serveur->listen(QHostAddress::Any, 53000)) // on écoute sur le port 53000
     {
         std::cout << "Le serveur n'a pas été correctement lancee." << std::endl;
     }
     else
     {
-        std::cout << "Le serveur est pret \n\nIP: " << m_tcp_server->serverAddress().toString().toStdString()
-                  << std::endl << "port: " << m_tcp_server->serverPort() << std::endl
+        std::cout << "Le serveur est pret \n\nIP: " << m_tcp_serveur->serverAddress().toString().toStdString()
+                  << std::endl << "port: " << m_tcp_serveur->serverPort() << std::endl
                   <<  "Lancez l'application Client maintenant." << std::endl;
     }
 }
 
 //###############################################################################################################
 // Méthode appelée lors de l'ouverture d'une connexion avec un client
-void Server::connexionClient()
+void Serveur::connexionClient()
 {
     // instanciation
-    m_socket_client = m_tcp_server->nextPendingConnection();
+    m_socket_client = m_tcp_serveur->nextPendingConnection();
 
-    envoiTexte("Bonjour");
+    // La méthode lireTexte sera appelée sur le signal readyRead
+    connect(m_socket_client, SIGNAL(readyRead()), this, SLOT(lireTexte()));
+
 }
 
-//###############################################################################################################
-// Méthode envoyant un texte au client
-void Server::envoiTexte( const std::string& s )
-{
-    std::cout << "Envoi de : " << s << std::endl;
-    QString texte = tr(s.c_str());
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-    out << (quint16)0;
-    out << texte;
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
 
-    m_socket_client->write(block);
+
+//###############################################################################################################
+// Méthode appelée lors de la réception d'un texte
+void Serveur::lireTexte()
+{
+    QDataStream in(m_socket_client);
+    in.setVersion(QDataStream::Qt_4_0);
+
+    if (m_blockSize == 0) {
+        if (m_socket_client->bytesAvailable() < (int)sizeof(quint16))
+            return;
+
+        in >> m_blockSize;
+    }
+
+    if (m_socket_client->bytesAvailable() < m_blockSize)
+        return;
+
+    QString texte;
+    in >> texte;
+
+    std::cout << texte.toStdString() << std::endl;
+    m_blockSize = 0;
+
+    m_socket_client->close();
 }

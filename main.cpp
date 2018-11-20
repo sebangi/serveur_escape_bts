@@ -6,6 +6,8 @@
 
 #include "entete/fenetreprincipale.h"
 
+#include "entete/serveur.h"
+
 #include <QApplication>
 #include <QFile>
 #include <QTextCodec>
@@ -21,6 +23,8 @@ int main(int argc, char *argv[])
 
     FenetrePrincipale w;
     w.show();
+
+    Serveur mon_serveur;
 
     return a.exec();
 }
