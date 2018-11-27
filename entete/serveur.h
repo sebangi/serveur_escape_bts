@@ -17,6 +17,11 @@ private slots:
     void sessionOuverte();
     void connexionClient();
     void lireTexte();
+    void lireTexte2();
+
+    private:
+    void tester_validite(const std::string & s);
+    std::string traiter_chaine( const std::string & s );
 
 private:
     QTcpServer *m_tcp_serveur; // La socket général

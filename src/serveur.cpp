@@ -49,10 +49,67 @@ void Serveur::connexionClient()
     m_socket_client = m_tcp_serveur->nextPendingConnection();
 
     // La méthode lireTexte sera appelée sur le signal readyRead
-    connect(m_socket_client, SIGNAL(readyRead()), this, SLOT(lireTexte()));
+    connect(m_socket_client, SIGNAL(readyRead()), this, SLOT(lireTexte2()));
 
 }
 
+//###############################################################################################################
+// Traitement de la chaine de caractères recue
+std::string Serveur::traiter_chaine( const std::string & s )
+{
+    std::string res;
+
+    for ( unsigned int i = 0; i != s.size(); ++i )
+        if ( ( (int)(s[i]) >= 48 && (int)(s[i]) <= 58 ) ||
+             (int)(s[i]) == 65 ||
+             (int)(s[i]) == 69 ||
+             (int)(s[i]) == 71 ||
+             (int)(s[i]) == 78 )
+            res = res + s[i];
+
+    return res;
+}
+
+//###############################################################################################################
+// Teste la validoté de la chaine de caractères recue
+void Serveur::tester_validite(const std::string & s)
+{
+    bool ok = false;
+
+    if ( s.size() >= 7 )
+    {
+        std::string debut(s,0,6);
+        std::string fin(s,6,s.size()-6);
+
+        if ( debut == "GAGNE:" )
+        {
+            QString qfin = QString::fromStdString(fin);
+            int num_enigme = qfin.toInt(&ok);
+            std::cout << "numero enigme : " << num_enigme << std::endl;
+        }
+    }
+
+
+    if ( ok )
+        std::cout << "MESSAGE VALIDE" << std::endl;
+    else
+        std::cout << "ERREUR : FORMAT INVALIDE" << std::endl;
+
+}
+
+//###############################################################################################################
+// Méthode appelée lors de la réception d'un texte
+void Serveur::lireTexte2()
+{
+    std::cout << "---------------------" << std::endl;
+    std::string s = m_socket_client->readAll().toStdString();
+    std::string res = traiter_chaine(s);
+    std::cout << "message recu :" << res << std::endl;
+
+    tester_validite(res);
+
+    m_socket_client->close();
+}
 
 
 //###############################################################################################################
