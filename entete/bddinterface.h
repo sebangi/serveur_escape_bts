@@ -39,6 +39,7 @@ public:
     void creer_partie( QString nom_equipe,
                        const EnsembleEnigmesBoutons & enigmes );
     void demarrer_partie( int id_equipe );
+    void finir_partie( int id_equipe, int score );
     std::set<int> get_enigmes_selectionnees( int id_equipe );
 
 private:

@@ -221,13 +221,29 @@ void BddInterface::demarrer_partie(int id_equipe)
     {
         QSqlQuery query;
 
-        query.prepare( "UPDATE equipe SET heure_depart=CURRENT_TIMESTAMP "
+        query.prepare( "UPDATE equipe SET heure_depart=CURRENT_TIMESTAMP,est_en_cours=1 "
                        "WHERE id = :id_equipe");
         query.bindValue(":id_equipe", id_equipe);
 
         query.exec();
     }
 }
+
+void BddInterface::finir_partie(int id_equipe, int score)
+{
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+
+        query.prepare( "UPDATE equipe SET score=:score, heure_depart=CURRENT_TIMESTAMP,est_en_cours=0, est_terùine=1, "
+                       "WHERE id = :id_equipe");
+        query.bindValue(":id_equipe", id_equipe);
+        query.bindValue(":score", score);
+
+        query.exec();
+    }
+}
+
 
 std::set<int> BddInterface::get_enigmes_selectionnees(int id_equipe)
 {
