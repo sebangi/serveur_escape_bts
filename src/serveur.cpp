@@ -4,10 +4,13 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include "entete/fenetreprincipale.h"
+
+
 //###############################################################################################################
 // Constructeur
-Serveur::Serveur()
-:   m_tcp_serveur(0), m_network_session(0), m_blockSize(0)
+Serveur::Serveur(FenetrePrincipale * f)
+:   m_tcp_serveur(0), m_network_session(0), m_blockSize(0), m_fenetre(f)
 {
     QNetworkConfigurationManager manager;
     QNetworkConfiguration config = manager.defaultConfiguration();
@@ -75,6 +78,7 @@ std::string Serveur::traiter_chaine( const std::string & s )
 void Serveur::tester_validite(const std::string & s)
 {
     bool ok = false;
+    int num_enigme;
 
     if ( s.size() >= 7 )
     {
@@ -84,14 +88,17 @@ void Serveur::tester_validite(const std::string & s)
         if ( debut == "GAGNE:" )
         {
             QString qfin = QString::fromStdString(fin);
-            int num_enigme = qfin.toInt(&ok);
+            num_enigme = qfin.toInt(&ok);
             std::cout << "numero enigme : " << num_enigme << std::endl;
         }
     }
 
 
     if ( ok )
+    {
         std::cout << "MESSAGE VALIDE" << std::endl;
+        m_fenetre->valider_enigme(num_enigme);
+    }
     else
         std::cout << "ERREUR : FORMAT INVALIDE" << std::endl;
 

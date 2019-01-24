@@ -244,6 +244,21 @@ void BddInterface::finir_partie(int id_equipe, int score)
     }
 }
 
+void BddInterface::reussir_enigme(int id_equipe, int num_enigme)
+{
+    if( connexionEtablie() )
+    {
+        QSqlQuery query;
+
+        query.prepare( "UPDATE equipe SET est_reussi=1 "
+                       "WHERE id_equipe = :id_equipe AND id_enigme = :id_enigme");
+        query.bindValue(":id_equipe", id_equipe);
+        query.bindValue(":id_enigme", num_enigme);
+
+        query.exec();
+    }
+}
+
 
 std::set<int> BddInterface::get_enigmes_selectionnees(int id_equipe)
 {

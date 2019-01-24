@@ -40,6 +40,7 @@ public:
                        const EnsembleEnigmesBoutons & enigmes );
     void demarrer_partie( int id_equipe );
     void finir_partie( int id_equipe, int score );
+    void reussir_enigme(int id_equipe, int num_enigme);
     std::set<int> get_enigmes_selectionnees( int id_equipe );
 
 private:

@@ -45,6 +45,24 @@ FenetrePrincipale::~FenetrePrincipale()
 }
 
 /** --------------------------------------------------------------------------------------
+ \brief Valide une énigme en cours.
+*/
+void FenetrePrincipale::valider_enigme(int num)
+{
+    EnigmeLabel::type_ensemble_enigme_label::const_iterator it;
+    for ( it = m_enigmes_en_cours.begin();
+          it != m_enigmes_en_cours.end();
+          ++it )
+    {
+        if( (*it)->enigme().id() == num )
+        {
+            (*it)->set_reussi(false);
+            m_bdd->instance()->reussir_enigme(m_id_equipe_en_cours,num);
+        }
+    }
+}
+
+/** --------------------------------------------------------------------------------------
  \brief Création des différents widgets.
 */
 void FenetrePrincipale::creer_widgets()
@@ -380,8 +398,10 @@ void FenetrePrincipale::terminer_partie()
  */
 void FenetrePrincipale::calculer_score()
 {
-    // A FAIRE
+    int score = ( 1000 * m_nb_enigmes_trouvees ) / m_nb_enigmes_en_cours +
+            m_temps_accorde - m_temps_en_cours;
 
+    m_bdd->instance()->finir_partie(m_id_equipe_en_cours, score);
 }
 
 /** --------------------------------------------------------------------------------------
@@ -419,6 +439,7 @@ void FenetrePrincipale::commencer_partie()
     m_bdd->instance()->demarrer_partie( m_id_equipe_en_cours );
     m_temps_en_cours = 0;
     m_partie_courante_terminee = false;
+    m_nb_enigmes_trouvees = 0;
 }
 
 
@@ -428,6 +449,7 @@ void FenetrePrincipale::commencer_partie()
 void FenetrePrincipale::mise_a_jour_enigme_en_cours()
 {
     std::set<int> selection = m_bdd->instance()->get_enigmes_selectionnees( m_id_equipe_en_cours );
+    m_nb_enigmes_en_cours = selection.size();
 
     EnigmeLabel::type_ensemble_enigme_label::const_iterator it;
     for ( it = m_enigmes_en_cours.begin();

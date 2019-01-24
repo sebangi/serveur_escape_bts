@@ -36,6 +36,7 @@ class FenetrePrincipale : public QMainWindow
     public:
         explicit FenetrePrincipale(QWidget *parent = NULL);
         ~FenetrePrincipale();
+        void valider_enigme(int num);
 
     private slots:
         void on_choix_enigme();
@@ -109,6 +110,12 @@ class FenetrePrincipale : public QMainWindow
 
         /** \brief Temps accordée à la partie. */
         int m_temps_accorde;
+
+        /** \brief Nombre d'énigmes en cours. */
+        int m_nb_enigmes_en_cours;
+
+        /** \brief Nombre d'énigmes trouvées. */
+        int m_nb_enigmes_trouvees;
 
         /** \brief Indique si la partie courante est terminée. */
         bool m_partie_courante_terminee;

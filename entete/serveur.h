@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include <QObject>
+class FenetrePrincipale;
 
 class QTcpServer;
 class QTcpSocket;
@@ -11,7 +12,7 @@ class Serveur : public QObject{
     Q_OBJECT
 
 public:
-    Serveur();
+    Serveur(FenetrePrincipale * f);
 
 private slots:
     void sessionOuverte();
@@ -28,6 +29,8 @@ private:
     QTcpSocket *m_socket_client; // La socket client
     QNetworkSession *m_network_session; // La session de connexion
     quint16 m_blockSize;
+
+    FenetrePrincipale * m_fenetre;
 };
 
 #endif

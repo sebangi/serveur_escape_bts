@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     FenetrePrincipale w;
     w.show();
 
-    Serveur mon_serveur;
+    Serveur mon_serveur(&w);
 
     return a.exec();
 }
