@@ -18,6 +18,7 @@ EnigmeButton::EnigmeButton(const Enigme & enigme, QWidget *parent)
 {
     setText( m_enigme.nom() );
     desactiver();
+    setEnabled( m_enigme.valide() );
 }
 
 /** --------------------------------------------------------------------------------------

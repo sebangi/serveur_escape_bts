@@ -43,6 +43,7 @@ class FenetrePrincipale : public QMainWindow
         void on_nom_equipe_changed();
         void on_enregistrer_equipe();
         void on_demarrer_equipe();
+        void on_forcer_fin();
         void onFinTimer();
 
     private:
@@ -95,6 +96,9 @@ class FenetrePrincipale : public QMainWindow
 
         /** \brief Un pointeur sur le bouton de démarrage d'une nouvelle partie. */
         QPushButton * m_demarrer_nouvelle_equipe;
+
+        /** \brief Un pointeur sur le bouton de démarrage d'une nouvelle partie. */
+        QPushButton * m_terminer_partie;
 
         /** \brief L'ensemble des boutons de choix des énigmes. */
         EnsembleEnigmesBoutons m_enigmes_prochaine_equipe;

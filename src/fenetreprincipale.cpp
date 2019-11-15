@@ -56,8 +56,12 @@ void FenetrePrincipale::valider_enigme(int num)
     {
         if( (*it)->enigme().id() == num )
         {
-            (*it)->set_reussi(false);
+            (*it)->set_reussi(true);
             m_bdd->instance()->reussir_enigme(m_id_equipe_en_cours,num);
+            m_nb_enigmes_trouvees++;
+
+            if ( m_nb_enigmes_trouvees == m_nb_enigmes_en_cours )
+                terminer_partie();
         }
     }
 }
@@ -95,7 +99,7 @@ void FenetrePrincipale::init_widgets()
     zone_partie_en_cours_lay->addWidget(partie_en_cours_label, 1);
 
     m_equipe_en_cours_label = new QLabel( "Equipe non renseignée" );
-    m_equipe_en_cours_label->setObjectName("MonLabel");
+    m_equipe_en_cours_label->setObjectName("MonLabelEquipe");
     m_equipe_en_cours_label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_equipe_en_cours_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     zone_partie_en_cours_lay->addWidget(m_equipe_en_cours_label, 1);
@@ -103,7 +107,7 @@ void FenetrePrincipale::init_widgets()
     QWidget * zone_temps= new QWidget(this);
     QHBoxLayout * zone_equipe_en_cours_lay = new QHBoxLayout();
     zone_equipe_en_cours_lay->setMargin(10);
-    zone_equipe_en_cours_lay->setSpacing(0);
+    zone_equipe_en_cours_lay->setSpacing(10);
 
     m_chronometre_label = new QLabel( "00:00" );
     m_chronometre_label->setObjectName("Chronometre");
@@ -120,6 +124,18 @@ void FenetrePrincipale::init_widgets()
     m_temps_total_label->setObjectName("Chronometre");
     m_temps_total_label->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     zone_equipe_en_cours_lay->addWidget( m_temps_total_label);
+
+
+
+    m_terminer_partie = new QPushButton( "Forcer la fin" );
+    m_terminer_partie->setObjectName("BoutonTerminer");
+    m_terminer_partie->setFixedWidth(200);
+    m_terminer_partie->setFixedHeight(50);
+    m_terminer_partie->setEnabled(false);
+    connect(m_terminer_partie, SIGNAL (released()),this, SLOT (on_forcer_fin()));
+    zone_equipe_en_cours_lay->addWidget( m_terminer_partie);
+
+
 
     zone_temps->setLayout(zone_equipe_en_cours_lay);
     zone_partie_en_cours_lay->addWidget(zone_temps, 1);
@@ -371,6 +387,12 @@ void FenetrePrincipale::on_demarrer_equipe()
     commencer_partie();
 }
 
+void FenetrePrincipale::on_forcer_fin()
+{
+    if ( ! m_partie_courante_terminee )
+        terminer_partie();
+}
+
 void FenetrePrincipale::onFinTimer()
 {
     if ( ! m_partie_courante_terminee )
@@ -388,8 +410,11 @@ void FenetrePrincipale::onFinTimer()
  */
 void FenetrePrincipale::terminer_partie()
 {
+
+    std::cout << "terminer_partie()" << std::endl;
     m_partie_courante_terminee = true;
 
+    m_terminer_partie->setEnabled(false);
     calculer_score();
 }
 
@@ -398,9 +423,11 @@ void FenetrePrincipale::terminer_partie()
  */
 void FenetrePrincipale::calculer_score()
 {
-    int score = ( 1000 * m_nb_enigmes_trouvees ) / m_nb_enigmes_en_cours +
-            m_temps_accorde - m_temps_en_cours;
+    std::cout << "calculer_score()" << std::endl;
 
+    int score = ( 10000 * m_nb_enigmes_trouvees ) / m_nb_enigmes_en_cours +
+            m_temps_accorde - m_temps_en_cours;
+    std::cout << "score=" << score << std::endl;
     m_bdd->instance()->finir_partie(m_id_equipe_en_cours, score);
 }
 
@@ -440,6 +467,8 @@ void FenetrePrincipale::commencer_partie()
     m_temps_en_cours = 0;
     m_partie_courante_terminee = false;
     m_nb_enigmes_trouvees = 0;
+
+    m_terminer_partie->setEnabled(true);
 }
 
 

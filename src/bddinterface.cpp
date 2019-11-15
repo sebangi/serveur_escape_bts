@@ -235,8 +235,8 @@ void BddInterface::finir_partie(int id_equipe, int score)
     {
         QSqlQuery query;
 
-        query.prepare( "UPDATE equipe SET score=:score, heure_depart=CURRENT_TIMESTAMP,est_en_cours=0, est_terùine=1, "
-                       "WHERE id = :id_equipe");
+        query.prepare( "UPDATE equipe SET score=:score, heure_fin=CURRENT_TIMESTAMP,est_en_cours=0, est_termine=1 "
+                       "WHERE id=:id_equipe");
         query.bindValue(":id_equipe", id_equipe);
         query.bindValue(":score", score);
 
@@ -285,7 +285,8 @@ void BddInterface::connexion_bdd()
 {
     m_db = QSqlDatabase::addDatabase("QMYSQL");
 
-    m_db.setHostName("217.128.90.45");
+   // m_db.setHostName("217.128.90.45");
+    m_db.setHostName("10.6.0.1");
     m_db.setUserName("2019_escape_user");
     m_db.setPassword("Dijkstra");
     m_db.setDatabaseName("2019_escape_bts");
